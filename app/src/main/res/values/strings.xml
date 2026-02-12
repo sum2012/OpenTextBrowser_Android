@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenText Browser</string>
+    <string name="enter_url_hint">Enter URL or search</string>
+    <string name="back_button_description">Go back</string>
+    <string name="forward_button_description">Go forward</string>
+    <string name="refresh_button_description">Refresh page</string>
+    <string name="copy_button_description">Copy selected text</string>
+    <string name="loading">Loading...</string>
+    <string name="text_copied">Text copied to clipboard</string>
+    <string name="no_text_selected">No text selected. Long-press to select text.</string>
+    <string name="cannot_open_link">Cannot open this link</string>
+    <string name="error_loading_page">Error loading page</string>
+    <string name="homepage">https://www.google.com</string>
+</resources>

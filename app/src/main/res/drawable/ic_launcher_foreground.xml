@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Browser Icon - Globe with Text -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,27C39.09,27 27,39.09 27,54C27,68.91 39.09,81 54,81C68.91,81 81,68.91 81,54C81,39.09 68.91,27 54,27ZM54,75C43.51,75 35,66.49 35,56C35,45.51 43.51,37 54,37C64.49,37 73,45.51 73,56C73,66.49 64.49,75 54,75Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,41C48.48,41 44,45.48 44,51C44,56.52 48.48,61 54,61C59.52,61 64,56.52 64,51C64,45.48 59.52,41 54,41ZM54,57C50.69,57 48,54.31 48,51C48,47.69 50.69,45 54,45C57.31,45 60,47.69 60,51C60,54.31 57.31,57 54,57Z"/>
+    <!-- Copy Text Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,45L60,45C58.9,45 58,45.9 58,47L58,53L64,53L64,47L68,47L68,45ZM66,63L58,63C56.9,63 56,63.9 56,65L56,71C56,72.1 56.9,73 58,73L66,73C67.1,73 68,72.1 68,71L68,65C68,63.9 67.1,63 66,63ZM66,71L58,71L58,65L66,65L66,71Z"/>
+</vector>

@@ -104,6 +104,11 @@ class MainActivity : AppCompatActivity() {
         // Initialize WebView
         webView = findViewById(R.id.webView)
 
+        // Add layout change listener to WebView to handle keyboard appearance
+        webView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            webView.invalidate()
+        }
+
         // Initialize URL input field
         urlEditText = findViewById(R.id.urlEditText)
 
@@ -121,6 +126,39 @@ class MainActivity : AppCompatActivity() {
 
         // Set up URL input handling
         setupUrlInputHandling()
+
+        // Set up keyboard visibility detection and WebView redraw
+        setupKeyboardDetection()
+    }
+
+    /**
+     * Set up keyboard visibility detection to redraw WebView when keyboard appears
+     */
+    private fun setupKeyboardDetection() {
+        val rootView = findViewById<View>(android.R.id.content)
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = android.graphics.Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+
+            // If keyboard is visible (keypadHeight > screenHeight * 0.15), refresh WebView
+            if (keypadHeight > screenHeight * 0.15) {
+                // Keyboard is visible - force WebView to redraw and request layout
+                webView.post {
+                    webView.invalidate()
+                    webView.requestLayout()
+                    // Also scroll to show content properly
+                    webView.scrollTo(0, 0)
+                }
+            } else {
+                // Keyboard is hidden - force WebView to redraw and request layout
+                webView.post {
+                    webView.invalidate()
+                    webView.requestLayout()
+                }
+            }
+        }
     }
 
     /**
@@ -156,6 +194,17 @@ class MainActivity : AppCompatActivity() {
      * Set up URL input field handling
      */
     private fun setupUrlInputHandling() {
+        // Handle focus changes to redraw WebView when keyboard appears
+        urlEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Redraw WebView when keyboard appears (input focus)
+                webView.invalidate()
+            } else {
+                // Redraw WebView when keyboard hides
+                webView.invalidate()
+            }
+        }
+
         // Handle keyboard actions on URL input
         urlEditText.setOnEditorActionListener { _, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_GO ||
@@ -180,6 +229,9 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebView() {
         webView.apply {
+            // Set white background to prevent lavender/blank display
+            setBackgroundColor(android.graphics.Color.WHITE)
+
             // Enable JavaScript for dynamic content
             settings.javaScriptEnabled = true
 

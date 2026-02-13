@@ -64,81 +64,90 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content - WebView -->
-    <WebView
-        android:id="@+id/webView"
+    <!-- Main Content Area -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Bottom Navigation Bar -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/bottom_nav_background"
-        app:elevation="8dp"
-        app:labelVisibilityMode="labeled">
-
-        <LinearLayout
+        <!-- WebView with proper layout weight -->
+        <WebView
+            android:id="@+id/webView"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#FFFFFF" />
 
-            <!-- Back Button -->
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/back_button_description"
-                android:padding="12dp"
-                android:src="@drawable/ic_back"
-                android:tint="@color/icon_color" />
+        <!-- Bottom Navigation Bar -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bottom_nav_background"
+            app:elevation="8dp"
+            app:labelVisibilityMode="labeled">
 
-            <!-- Forward Button -->
-            <ImageButton
-                android:id="@+id/btnForward"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/forward_button_description"
-                android:padding="12dp"
-                android:src="@drawable/ic_forward"
-                android:tint="@color/icon_color" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
 
-            <!-- Refresh Button -->
-            <ImageButton
-                android:id="@+id/btnRefresh"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/refresh_button_description"
-                android:padding="12dp"
-                android:src="@drawable/ic_refresh"
-                android:tint="@color/icon_color" />
+                <!-- Back Button -->
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/back_button_description"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_back"
+                    android:tint="@color/icon_color" />
 
-            <!-- Copy Button -->
-            <ImageButton
-                android:id="@+id/btnCopy"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/copy_button_description"
-                android:padding="12dp"
-                android:src="@drawable/ic_copy"
-                android:tint="@color/icon_color" />
+                <!-- Forward Button -->
+                <ImageButton
+                    android:id="@+id/btnForward"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/forward_button_description"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_forward"
+                    android:tint="@color/icon_color" />
 
-        </LinearLayout>
+                <!-- Refresh Button -->
+                <ImageButton
+                    android:id="@+id/btnRefresh"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/refresh_button_description"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_refresh"
+                    android:tint="@color/icon_color" />
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+                <!-- Copy Button -->
+                <ImageButton
+                    android:id="@+id/btnCopy"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/copy_button_description"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/icon_color" />
+
+            </LinearLayout>
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

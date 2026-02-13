@@ -36,6 +36,11 @@
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".TabSwitcherActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OpenTextBrowser" />
     </application>
 
 </manifest>

@@ -6,6 +6,9 @@
     <string name="forward_button_description">Go forward</string>
     <string name="refresh_button_description">Refresh page</string>
     <string name="copy_button_description">Copy selected text</string>
+    <string name="tabs_button_description">Open tabs</string>
+    <string name="new_tab">New tab</string>
+    <string name="close_tab">Close tab</string>
     <string name="loading">Loading...</string>
     <string name="text_copied">Text copied to clipboard</string>
     <string name="no_text_selected">No text selected. Long-press to select text.</string>

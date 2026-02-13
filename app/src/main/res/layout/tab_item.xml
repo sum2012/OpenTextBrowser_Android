@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Tab Preview Background -->
+        <View
+            android:id="@+id/viewPreview"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#FFFFFF" />
+
+        <!-- Close Button -->
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="4dp"
+            android:background="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="@string/close_tab"
+            android:padding="4dp" />
+
+        <!-- Tab Title -->
+        <TextView
+            android:id="@+id/tvTabTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/viewPreview"
+            android:background="#80000000"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="Google" />
+
+        <!-- URL Text -->
+        <TextView
+            android:id="@+id/tvTabUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewPreview"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:textColor="#666666"
+            android:textSize="10sp"
+            tools:text="https://www.google.com" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

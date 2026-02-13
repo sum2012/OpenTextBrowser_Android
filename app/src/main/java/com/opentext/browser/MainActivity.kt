@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebChromeClient
@@ -17,18 +18,19 @@ import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.edit
 import androidx.core.net.toUri
 
 /**
  * OpenTextBrowser - Android Browser with Text Copying Enabled
- * 
+ *
  * This browser is designed to allow users to copy text from any website,
  * overriding website restrictions that prevent text selection and copying.
+ * Supports multiple tabs.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -40,24 +42,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var forwardButton: ImageButton
     private lateinit var refreshButton: ImageButton
     private lateinit var copyButton: ImageButton
+    private lateinit var tabButton: ImageButton
     private lateinit var toolbar: Toolbar
+    private lateinit var tvTabCount: TextView
+
+    // Tab Manager
+    private lateinit var tabManager: TabManager
+    private var currentTabId: String? = null
 
     // Clipboard manager for copying text
     private lateinit var clipboardManager: ClipboardManager
 
-    // SharedPreferences for storing the last URL
-    private val sharedPreferences by lazy {
-        getSharedPreferences("OpenTextBrowserPrefs", Context.MODE_PRIVATE)
-    }
-
     companion object {
-        private const val KEY_LAST_URL = "last_url"
-        private const val DEFAULT_URL = "https://www.google.com"
+        private const val REQUEST_TAB_SWITCHER = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize TabManager
+        tabManager = TabManager.getInstance(this)
 
         // Initialize clipboard manager
         clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -68,14 +73,17 @@ class MainActivity : AppCompatActivity() {
         // Configure WebView settings
         configureWebView()
 
-        // Restore WebView state if available
-        if (savedInstanceState != null) {
-            webView.restoreState(savedInstanceState)
+        // Check if we have a specific tab to open from intent
+        val tabIdFromIntent = intent.getStringExtra(TabSwitcherActivity.EXTRA_SELECTED_TAB_ID)
+        if (tabIdFromIntent != null) {
+            switchToTab(tabIdFromIntent)
+        } else {
+            // Load the active tab
+            val activeTab = tabManager.getActiveTab()
+            if (activeTab != null) {
+                switchToTab(activeTab.id)
+            }
         }
-
-        // Load the last visited URL or default URL
-        val lastUrl = getLastUrl()
-        loadUrl(lastUrl)
 
         // Handle back button press using the modern OnBackPressedDispatcher API
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -120,6 +128,10 @@ class MainActivity : AppCompatActivity() {
         forwardButton = findViewById(R.id.btnForward)
         refreshButton = findViewById(R.id.btnRefresh)
         copyButton = findViewById(R.id.btnCopy)
+        tabButton = findViewById(R.id.btnTabs)
+
+        // Initialize tab count text view
+        tvTabCount = findViewById(R.id.tvTabCount)
 
         // Set up button click listeners
         setupButtonListeners()
@@ -129,6 +141,9 @@ class MainActivity : AppCompatActivity() {
 
         // Set up keyboard visibility detection and WebView redraw
         setupKeyboardDetection()
+
+        // Update tab count display
+        updateTabCount()
     }
 
     /**
@@ -188,6 +203,57 @@ class MainActivity : AppCompatActivity() {
         copyButton.setOnClickListener {
             copySelectedText()
         }
+
+        // Tab button - open tab switcher
+        tabButton.setOnClickListener {
+            openTabSwitcher()
+        }
+    }
+
+    /**
+     * Open the tab switcher
+     */
+    private fun openTabSwitcher() {
+        // Save current tab state before switching
+        saveCurrentTabState()
+        val intent = Intent(this, TabSwitcherActivity::class.java)
+        startActivityForResult(intent, REQUEST_TAB_SWITCHER)
+    }
+
+    /**
+     * Switch to a specific tab
+     */
+    private fun switchToTab(tabId: String) {
+        val tab = tabManager.getTab(tabId)
+        if (tab != null) {
+            currentTabId = tabId
+            tabManager.setActiveTab(tabId)
+            webView.loadUrl(tab.url)
+            urlEditText.setText(tab.url)
+            updateTabCount()
+            updateNavigationButtons()
+        }
+    }
+
+    /**
+     * Save current tab state
+     */
+    private fun saveCurrentTabState() {
+        currentTabId?.let { tabId ->
+            val url = webView.url
+            val title = webView.title
+            if (!url.isNullOrEmpty()) {
+                tabManager.updateTab(tabId, url = url, title = title)
+            }
+        }
+    }
+
+    /**
+     * Update tab count display
+     */
+    private fun updateTabCount() {
+        val count = tabManager.getTabCount()
+        tvTabCount.text = count.toString()
     }
 
     /**
@@ -287,9 +353,14 @@ class MainActivity : AppCompatActivity() {
             url.contains(".") -> "https://$url"
             else -> "https://www.google.com/search?q=$url"
         }
-        
+
         webView.loadUrl(processedUrl)
         urlEditText.setText(processedUrl)
+
+        // Update current tab
+        currentTabId?.let { tabId ->
+            tabManager.updateTab(tabId, url = processedUrl)
+        }
     }
 
     /**
@@ -301,20 +372,33 @@ class MainActivity : AppCompatActivity() {
             // Show progress bar when loading starts
             progressBar.visibility = View.VISIBLE
             updateNavigationButtons()
+
+            // Update tab as loading
+            currentTabId?.let { tabId ->
+                tabManager.updateTab(tabId, isLoading = true)
+            }
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             // Hide progress bar when loading finishes
             progressBar.visibility = View.GONE
-            
+
             // Update URL field
             url?.let {
                 if (!urlEditText.isFocused) {
                     urlEditText.setText(it)
                 }
-                // Save the URL to SharedPreferences for automatic recall
-                saveLastUrl(it)
+            }
+
+            // Update tab info
+            currentTabId?.let { tabId ->
+                tabManager.updateTab(
+                    tabId,
+                    url = url ?: "",
+                    title = view?.title ?: "New Tab",
+                    isLoading = false
+                )
             }
 
             // Inject JavaScript to enable text selection and copying
@@ -364,7 +448,7 @@ class MainActivity : AppCompatActivity() {
             super.onProgressChanged(view, newProgress)
             // Update progress bar
             progressBar.progress = newProgress
-            
+
             // Hide progress bar when fully loaded
             if (newProgress == 100) {
                 progressBar.visibility = View.GONE
@@ -391,7 +475,7 @@ class MainActivity : AppCompatActivity() {
                 var style = document.createElement('style');
                 style.id = 'opentext-browser-style';
                 style.innerHTML = `
-                    html, body, div, span, p, a, li, td, tr, table, 
+                    html, body, div, span, p, a, li, td, tr, table,
                     h1, h2, h3, h4, h5, h6, pre, code, blockquote,
                     article, section, main, nav, header, footer, aside,
                     input, textarea, label, select, option, button {
@@ -412,21 +496,21 @@ class MainActivity : AppCompatActivity() {
                         pointer-events: auto !important;
                     }
                 `;
-                
+
                 // Remove existing style if present
                 var existingStyle = document.getElementById('opentext-browser-style');
                 if (existingStyle) {
                     existingStyle.remove();
                 }
-                
+
                 // Add new style
                 document.head.appendChild(style);
 
                 // Remove event listeners that block text selection
-                var events = ['contextmenu', 'selectstart', 'copy', 'cut', 'paste', 
+                var events = ['contextmenu', 'selectstart', 'copy', 'cut', 'paste',
                              'mousedown', 'mouseup', 'keydown', 'keyup', 'drag', 'dragstart',
                              'touchstart', 'touchend', 'touchmove'];
-                
+
                 events.forEach(function(event) {
                     document.addEventListener(event, function(e) {
                         // Allow the event to propagate
@@ -436,7 +520,7 @@ class MainActivity : AppCompatActivity() {
                 // Override oncontextmenu to allow right-click
                 document.oncontextmenu = null;
                 document.body.oncontextmenu = null;
-                
+
                 // Remove inline oncontextmenu handlers
                 var elements = document.querySelectorAll('*');
                 elements.forEach(function(el) {
@@ -517,26 +601,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Save the last visited URL to SharedPreferences
+     * Handle activity result
      */
-    private fun saveLastUrl(url: String) {
-        sharedPreferences.edit {
-            putString(KEY_LAST_URL, url)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TAB_SWITCHER) {
+            // Check if we need to switch to a specific tab
+            val tabId = data?.getStringExtra(TabSwitcherActivity.EXTRA_SELECTED_TAB_ID)
+            if (tabId != null) {
+                switchToTab(tabId)
+            } else {
+                // Refresh current tab info
+                val activeTab = tabManager.getActiveTab()
+                if (activeTab != null && currentTabId != activeTab.id) {
+                    switchToTab(activeTab.id)
+                }
+            }
+            updateTabCount()
         }
-    }
-
-    /**
-     * Get the last visited URL from SharedPreferences
-     * Returns default URL if no previous URL was saved
-     */
-    private fun getLastUrl(): String {
-        return sharedPreferences.getString(KEY_LAST_URL, DEFAULT_URL) ?: DEFAULT_URL
     }
 
     /**
      * Save WebView state when activity is destroyed
      */
     override fun onSaveInstanceState(outState: Bundle) {
+        saveCurrentTabState()
         webView.saveState(outState)
         super.onSaveInstanceState(outState)
     }
@@ -555,11 +644,10 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         webView.onPause()
-        // Save the current URL when app goes to background
-        val currentUrl = webView.url
-        if (!currentUrl.isNullOrEmpty()) {
-            saveLastUrl(currentUrl)
-        }
+        // Save current tab state
+        saveCurrentTabState()
+        // Force save tabs
+        tabManager.forceSave()
     }
 
     /**
@@ -568,12 +656,16 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         webView.onResume()
+        // Refresh tab info in case it was modified
+        updateTabCount()
     }
 
     /**
      * Clean up WebView when activity is destroyed
      */
     override fun onDestroy() {
+        saveCurrentTabState()
+        tabManager.forceSave()
         webView.destroy()
         super.onDestroy()
     }

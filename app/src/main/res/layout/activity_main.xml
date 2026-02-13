@@ -144,6 +144,37 @@
                     android:src="@drawable/ic_copy"
                     android:tint="@color/icon_color" />
 
+                <!-- Tab Button with Count -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <ImageButton
+                        android:id="@+id/btnTabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/tabs_button_description"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_tabs"
+                        android:tint="@color/icon_color" />
+
+                    <TextView
+                        android:id="@+id/tvTabCount"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/tab_count_background"
+                        android:gravity="center"
+                        android:textColor="@android:color/white"
+                        android:textSize="10sp"
+                        tools:text="1" />
+
+                </FrameLayout>
+
             </LinearLayout>
 
         </com.google.android.material.bottomnavigation.BottomNavigationView>
